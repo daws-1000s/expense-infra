@@ -10,7 +10,7 @@ pipeline {
     parameters {
         choice(name: 'ACTION', choices:['apply','destroy'], description: 'select Action' )
     }
-    stage {
+    stages {
         stage('init and plan') {
             steps{
                 withAWS(region: 'us-east-1', credentials: 'aws-creds') {
