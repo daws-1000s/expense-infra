@@ -32,7 +32,7 @@ pipeline {
                         cd 40-eks
                         if [ "${params.ACTION}" == "apply" ]; then
                             terraform apply -auto-approve
-                        elif [ "${params.ACTION}" == "destroy"]; then
+                        elif [ "${params.ACTION}" == "destroy" ]; then
                             terraform destroy -auto-approve
                         fi
                     """
