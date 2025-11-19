@@ -44,6 +44,23 @@ pipeline {
                 build job: '00-vpc', parameters: [string(name: 'ACTION', value: 'destroy')], wait: false
             }
         }
+        stage('Parallel') {
+            when {
+                expression { params.ACTION == 'apply' }
+            }
+            parallel {
+                stage('Bastion') {
+                    steps {
+                        build job: '20-bastion', parameters: [string(name: 'ACTION', value: 'apply')], wait: false
+                    }
+                }
+                stage('EKS') {
+                    steps {
+                        build job: '40-eks', parameters: [string(name: 'ACTION', value: 'apply')], wait: false
+                    }
+                }
+            }
+        }
     }
     
     post {
