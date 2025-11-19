@@ -1,18 +1,16 @@
 resource "aws_key_pair" "eks" {
   key_name   = "eks"
-  # you can paste the public key directly like this
-  //public_key = file("~/.ssh/eks.pub")
   public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDfR/vqwOF+eA1OW7T36OrIN5xOzezKGRmxw0vLBSl84wL9c5Mpx5nooZP8EHPSxtqkD8M4LK6UZithshTQAkJuTcVZHLlOEEyZqITVUgJWMxnVl3ZneiAlid/KoR5WdgY6qJm7AqGAzbCS08WH6WZLaWKZQNEM2m140AUJXLmrvTJAWpOOqlj3pjBPpFhmzRxqvlWK8i9kLI+2PBPD28Wc3TNaN8JyeGFRgPEyGAdxhfMFA0lO/VrASZNlSNhQReTb1o+itbTqpp9DfPWIBLdZkbfcrkrQJyzkbEB3W0XBfCinkElbmrbq3HKBwQqODLRt3sTBacVCDvXTbEQVedmgtGEJ3wd58/BwyoRCBEuLXWHh+8AoxV/yIei4bXQx1JydatnmmJdyhy6TrVxEfo4s4hGob4lm+igyMTrSRI6HzmqRoBj0/Q5qWs6LRdVfVX2nBQrSwoXREPQk8ShjlBWRGWlT0zdVXkTgC+yoOVdwVvvjazO0ihugsKV+LHUe3NFgenOti0iBQzIz6Og+gbMqXO1ZuJDINJd30fWZwo9PtU2xRguWg4cFprKJ+idHIFGxTAsHyJxgAPncpk0V3bXRJACmuN5Wdhk6TEhVJ+2amMAM2vg9adZfpJCXW/mOw1reVb43yGLe2MbzdQHllgTZ8gQEPw61iTybFBM91UV7iw== ec2-user"
-  # ~ means windows home directory
 }
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
+  version = "21.9.0"
 
-  cluster_name = "${var.project_name}-${var.environment}"
+  cluster_name    = "${var.project_name}-${var.environment}"
   cluster_version = "1.31"
 
-  cluster_endpoint_public_access  = true
+  cluster_endpoint_public_access = true
 
   cluster_addons = {
     coredns                = {}
@@ -31,44 +29,29 @@ module "eks" {
   create_node_security_group = false
   node_security_group_id     = local.node_sg_id
 
-  # the user which you used to create cluster will get admin access
-
-  # EKS Managed Node Group(s)
+  # Default configs for node groups
   eks_managed_node_group_defaults = {
     instance_types = ["m6i.large", "m5.large", "m5n.large", "m5zn.large"]
   }
 
   eks_managed_node_groups = {
-    # blue = {
-    #   min_size      = 3
-    #   max_size      = 10
-    #   desired_size  = 3
-    #   capacity_type = "SPOT"
-    #   iam_role_additional_policies = {
-    #     AmazonEBSCSIDriverPolicy          = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
-    #     AmazonElasticFileSystemFullAccess = "arn:aws:iam::aws:policy/service-role/AmazonEFSCSIDriverPolicy"
-    #     ElasticLoadBalancingFullAccess = "arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess"
-    #   }
-    #   # EKS takes AWS Linux 2 as it's OS to the nodes
-    #   key_name = aws_key_pair.eks.key_name
-    # }
     green = {
-      min_size      = 3
-      max_size      = 10
-      desired_size  = 3
+      min_size     = 3
+      max_size     = 10
+      desired_size = 3
+
       capacity_type = "SPOT"
+
       iam_role_additional_policies = {
         AmazonEBSCSIDriverPolicy          = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
         AmazonElasticFileSystemFullAccess = "arn:aws:iam::aws:policy/AmazonElasticFileSystemFullAccess"
-        ElasticLoadBalancingFullAccess = "arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess"
+        ElasticLoadBalancingFullAccess    = "arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess"
       }
-      # EKS takes AWS Linux 2 as it's OS to the nodes
+
       key_name = aws_key_pair.eks.key_name
     }
   }
 
-  # Cluster access entry
-  # To add the current caller identity as an administrator
   enable_cluster_creator_admin_permissions = true
 
   tags = var.common_tags
