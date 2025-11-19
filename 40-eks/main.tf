@@ -38,6 +38,7 @@ module "eks" {
       min_size     = 3
       max_size     = 10
       desired_size = 3
+
       capacity_type = "SPOT"
 
       iam_role_additional_policies = {
@@ -54,4 +55,3 @@ module "eks" {
 
   tags = var.common_tags
 }
-

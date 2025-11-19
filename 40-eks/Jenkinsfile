@@ -15,21 +15,22 @@ pipeline {
             steps {
                 withAWS(region: 'us-east-1', credentials: 'aws-creds') {
                     sh """
-                        cd 40-eks
                         rm -rf .terraform
-                        terraform init -upgrade
-                        terraform plan -out=tfplan
+                        rm -f .terraform.lock.hcl
+                        terraform init -upgrade -input=false
+                        terraform validate
+                        terraform plan -out=tfplan -input=false
                 """
                 }
             }
         }
         stage('Apply or Destroy') {
             steps {
-                withAWS(region: 'us-east-1', credentials: 'aws-cred') {
+                withAWS(region: 'us-east-1', credentials: 'aws-creds') {
                     sh """
                         cd 40-eks
                         if [ "${params.ACTION}" == "apply" ]; then
-                            terraform apply -auto-aprove
+                            terraform apply -auto-approve
                         elif [ "${params.ACTION}" == "destroy"]; then
                             terraform destroy -auto-approve
                         fi
