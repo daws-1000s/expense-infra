@@ -1,7 +1,7 @@
 module "db" {
   source = "terraform-aws-modules/rds/aws"
 
-  identifier = local.resource_name #expense-dev
+  identifier = local.resource_name
 
   engine            = "mysql"
   engine_version    = "8.0"
@@ -15,20 +15,16 @@ module "db" {
   port     = "3306"
 
   vpc_security_group_ids = [local.mysql_sg_id]
-  skip_final_snapshot = true
+  skip_final_snapshot    = true
 
   tags = merge(
     var.common_tags,
     var.rds_tags
   )
 
-  # DB subnet group
   db_subnet_group_name = local.database_subnet_group_name
 
-  # DB parameter group
-  family = "mysql8.0"
-
-  # DB option group
+  family               = "mysql8.0"
   major_engine_version = "8.0"
 
   parameters = [
@@ -54,9 +50,9 @@ module "db" {
         {
           name  = "SERVER_AUDIT_FILE_ROTATIONS"
           value = "37"
-        },
+        }
       ]
-    },
+    }
   ]
 }
 
@@ -64,19 +60,16 @@ module "records" {
   source  = "terraform-aws-modules/route53/aws//modules/records"
   version = "2.10.0"
 
-  zone_name = var.zone_name
+  zone_name    = var.zone_name
+  private_zone = true
 
   records = [
-    
     {
-      name    = "mysql-${var.environment}" #mysql-dev.daws81s.online
-      type    = "CNAME"
-      ttl     = 1
-      records = [
-        module.db.db_instance_address
-      ]
+      name            = "mysql-${var.environment}"
+      type            = "CNAME"
+      ttl             = 1
+      records         = [module.db.db_instance_address]
       allow_overwrite = true
-    },
+    }
   ]
-
 }
