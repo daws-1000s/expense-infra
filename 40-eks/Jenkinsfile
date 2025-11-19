@@ -16,13 +16,13 @@ pipeline {
                 withAWS(region: 'us-east-1', credentials: 'aws-creds') {
                     sh """
                         cd 40-eks
-                        terraform init -reconfigure
+                        terraform init -upgrade
                         terraform plan -out=tfplan
                 """
                 }
             }
         }
-        stage('Apply 0r Destroy') {
+        stage('Apply or Destroy') {
             steps {
                 withAWS(region: 'us-east-1', credentials: 'aws-cred') {
                     sh """
