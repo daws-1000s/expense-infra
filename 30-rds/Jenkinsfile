@@ -2,20 +2,16 @@ pipeline {
     agent {
         label 'AGENT-1'
     }
-    options{
-        timeout(time: 30, unit: 'MINUTES')
+    options {
+        timeout(time:30, unit: 'MINUTES')
         disableConcurrentBuilds()
         ansiColor('xterm')
     }
-    // environment {
-    //     DEBUG = 'true'
-    // }
-
     parameters {
-        choice(name: 'ACTION', choices: ['apply', 'destroy'], description: 'Select Action')
+        choice(name: 'ACTION', choices:['apply','destroy'], description: 'select Action')
     }
     stages {
-        stage('Init and Plan') {
+        stage ('Init and Plan') {
             steps {
                 withAWS(region: 'us-east-1', credentials: 'aws-creds') {
                     sh """
@@ -26,41 +22,30 @@ pipeline {
                 }
             }
         }
-
-        stage('Apply or Destroy') {
-            /* input {
-                message "Should we continue to ${params.ACTION}"
+        stage ('Apply or Destroy') {
+            input {
+                message "should we continue the ${params.ACTION}"
                 ok "Yes, we should."
-            } */
+            }
             steps {
                 withAWS(region: 'us-east-1', credentials: 'aws-creds') {
                     sh """
                         cd 30-rds
-                        if [ ${params.ACTION} == 'apply' ]
-                        then
+                        if [ "${params.ACTION}" == "apply" ]; then
                             terraform apply -auto-approve tfplan
-                        elif [ ${params.ACTION} == 'destroy' ]
-                        then
+                        elif [ "${params.ACTION}" == "destroy" ]; then
                             terraform destroy -auto-approve
                         fi
                     """
                 }
             }
         }
-        
-
     }
 
     post {
-        always{
-            echo "This sections runs always"
+        always {
+            echo "this section runs always"
             deleteDir()
-        }
-        success{
-            echo "This section run when pipeline success"
-        }
-        failure{
-            echo "This section run when pipeline failure"
         }
     }
 }
