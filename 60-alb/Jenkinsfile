@@ -16,7 +16,7 @@ pipeline {
                 withAWS(region:'us-east-1', credentials: 'aws-creds') {
                     sh """
                         cd 60-alb
-                        terraform init -reconfigure
+                        terraform init -upgrade
                         terraform plan -out=tfplan
                 """
                 }
