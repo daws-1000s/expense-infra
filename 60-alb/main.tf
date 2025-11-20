@@ -31,24 +31,24 @@ resource "aws_lb_listener" "http" {
   }
 }
 
-module "records" {
-  source  = "terraform-aws-modules/route53/aws//modules/records"
-  version = "3.0.0"
+# module "records" {
+#   source  = "terraform-aws-modules/route53/aws//modules/records"
+#   version = "3.0.0"
 
-  zone_name = var.zone_name
+#   zone_name = var.zone_name
 
-  records = [
-    {
-      name    = "expense-${var.environment}"
-      type    = "A"
-      alias   = {
-        name    = module.ingress_alb.dns_name
-        zone_id = module.ingress_alb.zone_id
-      }
-      allow_overwrite = true
-    }
-  ]
-}
+#   records = [
+#     {
+#       name    = "expense-${var.environment}"
+#       type    = "A"
+#       alias   = {
+#         name    = module.ingress_alb.dns_name
+#         zone_id = module.ingress_alb.zone_id
+#       }
+#       allow_overwrite = true
+#     }
+#   ]
+# }
 
 resource "aws_lb_target_group" "expense" {
   name     = local.resource_name
