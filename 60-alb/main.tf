@@ -51,6 +51,7 @@ resource "aws_lb_listener" "https" {
 
 module "records" {
   source  = "terraform-aws-modules/route53/aws//modules/records"
+  version = "3.0.0"
 
   zone_name = var.zone_name #daws81s.online
   records = [
