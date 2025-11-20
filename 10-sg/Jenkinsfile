@@ -59,6 +59,11 @@ pipeline {
                         build job: '40-eks', parameters: [string(name: 'ACTION', value: 'apply')], wait: false
                     }
                 }
+                stage('RDS'){
+                    steps {
+                        buil job: '30-rds', parameters: [string(name: 'ACTION', value: 'apply')], wait: false
+                    }
+                }
             }
         }
     }
