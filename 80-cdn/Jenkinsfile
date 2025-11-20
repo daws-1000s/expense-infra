@@ -32,7 +32,7 @@ pipeline {
                         cd 80-cdn
                         if [ "${params.ACTION}" == "apply" ]; then
                             terraform apply -auto-approve tfplan
-                        elif [ "${param.ACTION}" == "destroy" ]; then
+                        elif [ "${params.ACTION}" == "destroy" ]; then
                             terraform destroy -auto-approve
                         fi
                     """
