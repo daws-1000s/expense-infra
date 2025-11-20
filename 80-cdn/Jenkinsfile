@@ -30,36 +30,37 @@ pipeline {
                 withAWS(region: 'us-east-1', credentials: 'aws-creds') {
                     sh """
                         cd 80-cdn
-                        if [ ${params.ACTION} == 'apply' ]
-                        then
+                        if [ ${params.ACTION} == 'apply' ]; then
                             terraform apply -auto-approve tfplan
+                        elif [ "${param.ACTION}" == "destroy" ]; then
+                            terraform destroy -auto-approve
                         fi
                     """
                 }
             }
         }
 
-        stage('Destroy') {
-            when {
-                expression { params.ACTION == 'destroy' }
-            }
-            steps {
-                withAWS(region: 'us-east-1', credentials: 'aws-creds') {
-                    script {
-                        def directories = ['80-cdn', '70-ecr', '60-alb', '50-acm', '40-eks', '30-rds', '20-bastion', '10-sg', '00-vpc']
-                        for (dir in directories) {
-                            echo "Destroying resources in directory: ${dir}"
-                            sh """
-                                cd ${dir}
-                                terraform init -reconfigure -upgrade
-                                terraform destroy -auto-approve || { echo "Failed to destroy resources in ${dir}"; exit 1; }
-                                cd ..
-                            """
-                        }
-                    }
-                }
-            }
-        }
+        // stage('Destroy') {
+        //     when {
+        //         expression { params.ACTION == 'destroy' }
+        //     }
+        //     steps {
+        //         withAWS(region: 'us-east-1', credentials: 'aws-creds') {
+        //             script {
+        //                 def directories = ['80-cdn', '70-ecr', '60-alb', '50-acm', '40-eks', '30-rds', '20-bastion', '10-sg', '00-vpc']
+        //                 for (dir in directories) {
+        //                     echo "Destroying resources in directory: ${dir}"
+        //                     sh """
+        //                         cd ${dir}
+        //                         terraform init -reconfigure -upgrade
+        //                         terraform destroy -auto-approve || { echo "Failed to destroy resources in ${dir}"; exit 1; }
+        //                         cd ..
+        //                     """
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
     }
 
     post {
